@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Study Desk – Smart Course Registration</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#101a18;--board:rgba(14,26,22,.80);--card:rgba(30,51,44,.88);--line:#3b564b;--ink:#eaf1e6;--mute:#a3b9ad;--accent:#f2b84b;--onacc:#1b1409;--wood:#b07a45;--ok:#7fd1a0;--bad:#ff8272;--glow:rgba(242,184,75,.22);--cl:30%;--cell:#f4f7ef;--head:'Dancing Script',cursive;--body:'Caveat',cursive}
+[data-theme=light]{--bg:#eee4cf;--board:rgba(247,240,223,.86);--card:rgba(255,250,240,.92);--line:#d3c19b;--ink:#2b2218;--mute:#6b5d4b;--accent:#a0561a;--onacc:#fffaf0;--wood:#8a5a2b;--ok:#23764a;--bad:#b63a2a;--glow:rgba(160,86,26,.14);--cl:80%;--cell:#2b2218}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 1.3rem/1.35 var(--body);transition:background .5s,color .5s}
+h1,h2,h3,button,.tab{font-family:var(--head);font-weight:700}
+main{max-width:1150px;margin:0 auto;padding:1rem 1.2rem 4rem}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:-1;display:block}
+.board{backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+.hero h1,.hero p,.logo{text-shadow:0 2px 14px rgba(0,0,0,.55)}
+[data-theme=light] .hero h1,[data-theme=light] .hero p,[data-theme=light] .logo{text-shadow:0 1px 10px rgba(255,255,255,.8)}
+.hero p{color:var(--ink)}
+.top{display:flex;justify-content:space-between;align-items:center;padding:.6rem 0}
+.logo{font:700 1.8rem var(--head);color:var(--accent)}
+button{font-size:1.15rem;cursor:pointer;border:0;border-radius:10px;padding:.45rem 1rem;background:var(--accent);color:var(--onacc)}
+button.ghost{background:transparent;color:var(--ink);border:1.5px dashed var(--line)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:1rem;align-items:center;padding:1rem 0 1.5rem}
+.hero h1{font-size:clamp(2.6rem,7vw,4.6rem);margin:0;line-height:1}
+.hero p{font-size:1.45rem;color:var(--mute);max-width:30ch}
+.hero svg{width:100%;max-width:420px;justify-self:center}
+.w{fill:var(--wood)}.b1{fill:#4d7a68}.b2{fill:#c9694f}.b3{fill:#e0b24a}.pg{fill:var(--card);stroke:var(--line)}.lamp{fill:var(--accent)}
+.glow{animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.6}}
+.tabs{display:flex;gap:.5rem;border-bottom:3px solid var(--wood);margin-bottom:1.2rem;flex-wrap:wrap}
+.tab{background:var(--board);color:var(--mute);border-radius:12px 12px 0 0;font-size:1.3rem}
+.tab[aria-selected=true]{background:var(--accent);color:var(--onacc)}
+.panel[hidden]{display:none}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;align-items:start}
+.board{background:var(--board);border:2px dashed var(--line);border-radius:14px;padding:1rem 1.1rem}
+.card{background:var(--card);border-left:6px solid hsl(var(--h) 55% 50%);border-radius:10px;padding:.7rem .9rem;margin-bottom:.8rem}
+h2{font-size:2rem;margin:.1rem 0 .6rem}h3{margin:0;font-size:1.5rem}h3 span{color:var(--mute);font:500 1.15rem var(--body)}
+.chip{display:inline-flex;gap:.4rem;align-items:center;color:var(--mute);cursor:pointer}
+.secs{display:grid;gap:.4rem;margin-top:.4rem}
+.sec{text-align:left;font:500 1.15rem var(--body);background:transparent;color:var(--ink);border:1.5px solid var(--line);border-radius:8px;padding:.35rem .6rem}
+.sec small{display:block;color:var(--mute);font-size:1rem}
+.sec.on{background:hsl(var(--h) 45% 32%);color:#fff;border-color:transparent}
+.sec.on small{color:#e3ece6}
+.sec[data-full]{opacity:.6}.sec[data-off]{opacity:.35;text-decoration:line-through}
+table{border-collapse:collapse;width:100%;font-size:1.05rem}
+th,td{border:1px solid var(--line);padding:.25rem;text-align:center;height:2.3rem}
+th{color:var(--mute);font-weight:500}
+td.fill{background:hsl(var(--h) 50% var(--cl));color:var(--cell);font-weight:700}
+td small{display:block;font-weight:500;font-size:.85rem}
+.row{display:flex;gap:.8rem;flex-wrap:wrap;align-items:center;margin:.5rem 0}
+input[type=number],input[type=text]{width:6rem;font:500 1.2rem var(--body);background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:8px;padding:.25rem .5rem}
+input[type=text]{width:9rem}
+.score{font:700 2.6rem var(--head);color:var(--accent)}
+.item{display:flex;justify-content:space-between;gap:.5rem;align-items:center;background:var(--card);border-radius:8px;padding:.4rem .7rem;margin:.4rem 0}
+.ok{color:var(--ok)}.bad{color:var(--bad)}.mute{color:var(--mute)}
+#toast{position:fixed;left:50%;bottom:1.4rem;transform:translate(-50%,150%);background:var(--ink);color:var(--bg);padding:.6rem 1.2rem;border-radius:12px;transition:transform .3s;max-width:90vw;z-index:9}
+#toast.show{transform:translate(-50%,0)}#toast.err{background:var(--bad);color:#fff}
+@media(max-width:820px){.hero,.grid{grid-template-columns:1fr}.hero svg{max-width:300px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+<main>
+<div class="top"><span class="logo">Study Desk</span><button class="ghost" id="theme" aria-label="Switch theme">Lamp on / off</button></div>
+
+<section class="hero">
+<div>
+<h1>Plan the routine.<br>Take your seat, fairly.</h1>
+<p>No more clashing classes. No more seats lost to a faster internet connection.</p>
+</div>
+<svg viewBox="0 0 360 240" role="img" aria-label="A study desk with a chair, books and a lamp">
+<circle class="glow" cx="262" cy="80" r="95" fill="var(--accent)" opacity=".18"/>
+<rect class="w" x="40" y="68" width="14" height="82" rx="4"/><rect class="w" x="40" y="140" width="74" height="12" rx="4"/>
+<rect class="w" x="46" y="152" width="8" height="58"/><rect class="w" x="104" y="152" width="8" height="58"/>
+<rect class="w" x="120" y="130" width="220" height="14" rx="4"/><rect class="w" x="132" y="144" width="10" height="66"/><rect class="w" x="318" y="144" width="10" height="66"/>
+<rect class="b1" x="150" y="112" width="74" height="18" rx="2"/><rect class="b2" x="156" y="96" width="62" height="16" rx="2"/><rect class="b3" x="152" y="82" width="66" height="14" rx="2"/>
+<path class="pg" d="M236 128l28-8 28 8v-18l-28-8-28 8z"/><path d="M264 120v-18" stroke="var(--line)"/>
+<rect class="w" x="296" y="124" width="36" height="6" rx="3"/><path d="M314 124L300 66" stroke="var(--wood)" stroke-width="5" fill="none"/>
+<path class="lamp" d="M280 66l40-6-8-26-26 4z"/>
+</svg>
+</section>
+
+<div class="tabs" role="tablist">
+<button class="tab" role="tab" data-t="plan" aria-selected="true">Plan routine</button>
+<button class="tab" role="tab" data-t="reg" aria-selected="false">Register</button>
+<button class="tab" role="tab" data-t="sim" aria-selected="false">Rush hour test</button>
+</div>
+
+<section id="plan" class="panel grid">
+<div><h2>Courses</h2><div id="cards"></div></div>
+<div class="board">
+<h2>Your week</h2>
+<div class="row"><label class="chip"><input type="checkbox" id="nt"> No Thursday class</label><label class="chip"><input type="checkbox" id="ne"> Nothing before 9:00</label></div>
+<div class="row"><button id="auto">Build my routine</button><button class="ghost" id="clr">Clear</button><span class="mute" id="info">Tick courses, then build, or pick sections by hand.</span></div>
+<table id="tbl" aria-label="Weekly routine"></table>
+</div>
+</section>
+
+<section id="reg" class="panel grid" hidden>
+<div class="board">
+<h2>Your priority</h2>
+<div class="row"><label>Name <input type="text" id="nm" value="Student"></label><label>CGPA <input type="number" id="cg" value="3.4" step=".05" min="2" max="4"></label><label>Semester <input type="number" id="se" value="4" min="1" max="8"></label><label class="chip"><input type="checkbox" id="rt"> Retake course</label></div>
+<div class="score" id="score"></div>
+<p class="mute">Score = retake 50 + semester × 10 + CGPA × 5. Higher score gets seats first, so clicking faster gives no advantage.</p>
+<button id="go">Request seats for my routine</button>
+</div>
+<div class="board"><h2>My seats</h2><div id="status"></div></div>
+</section>
+
+<section id="sim" class="panel" hidden>
+<div class="board">
+<h2>100 students, one second</h2>
+<p class="mute">Every student requests a random section at the same moment. A max-heap hands out seats by priority score; the rest join the waitlist. Run this, then request your own seats to see the waitlist work.</p>
+<div class="row"><button id="run">Run 100 students</button><button class="ghost" id="reset">Reset all seats</button></div>
+<div id="simout"></div>
+</div>
+</section>
+</main>
+<div id="toast" role="status"></div>
+
+<script>
+const D=['Sun','Mon','Tue','Wed','Thu'],$=s=>document.querySelector(s);
+const C=[
+['CSE101','Intro to Programming',[['Dr. Rahman','301',[0,2],540,630,3],['Ms. Nila','302',[1,3],600,690,2],['Dr. Rahman','301',[0,2],720,810,2]]],
+['MAT102','Calculus I',[['Mr. Karim','210',[0,2],540,630,2],['Mr. Karim','210',[1,3],480,570,3],['Dr. Sultana','211',[2,4],660,750,2]]],
+['PHY103','Physics I',[['Dr. Alam','Lab-2',[1,3],540,630,3],['Dr. Alam','Lab-2',[0,2],840,930,2],['Ms. Rima','105',[4],600,780,2]]],
+['ENG104','English Composition',[['Ms. Jahan','104',[0,2],600,690,3],['Ms. Jahan','104',[1,3],840,930,3]]],
+['CSE105','Digital Logic',[['Dr. Hasan','305',[1,3],660,750,2],['Mr. Imran','306',[0,2],480,570,2],['Mr. Imran','306',[2,4],840,930,3]]],
+['STA106','Statistics',[['Dr. Banu','208',[0,3],720,810,2],['Dr. Banu','208',[1,4],540,630,3]]]];
+const S=[];C.forEach(([code,name,secs],ci)=>secs.forEach((x,i)=>S.push({id:code+'-'+(i+1),code,name,no:i+1,t:x[0],r:x[1],d:x[2],a:x[3],b:x[4],tot:x[5],left:x[5],wait:[],hue:ci*58+150,en:0,wq:0,cut:null})));
+const F=m=>(m/60|0)+':'+String(m%60).padStart(2,'0'),by=id=>S.find(s=>s.id==id);
+const clash=(x,y)=>x.d.some(d=>y.d.includes(d))&&x.a<y.b&&y.a<x.b;
+let want=new Set,pick={},locks=[],enr=[],wait=[];
+const bad=s=>($('#nt').checked&&s.d.includes(4))||($('#ne').checked&&s.a<540);
+const picked=()=>Object.values(pick).map(by);
+let tt;function toast(m,e){const t=$('#toast');t.textContent=m;t.className='show'+(e?' err':'');clearTimeout(tt);tt=setTimeout(()=>t.className='',3200)}
+
+class Heap{constructor(){this.a=[]}get n(){return this.a.length}
+push(x){const a=this.a;a.push(x);let i=a.length-1;while(i&&a[i].sc>a[(i-1)>>1].sc){const p=(i-1)>>1;[a[i],a[p]]=[a[p],a[i]];i=p}}
+pop(){const a=this.a,top=a[0],l=a.pop();if(a.length){a[0]=l;let i=0;for(;;){let m=i,L=2*i+1,R=L+1;if(L<a.length&&a[L].sc>a[m].sc)m=L;if(R<a.length&&a[R].sc>a[m].sc)m=R;if(m==i)break;[a[i],a[m]]=[a[m],a[i]];i=m}}return top}}
+
+function plan(){
+$('#cards').innerHTML=C.map(([code,name])=>{const ss=S.filter(s=>s.code==code);
+return `<article class="card" style="--h:${ss[0].hue}"><h3>${code} <span>${name}</span></h3>
+<label class="chip"><input type="checkbox" data-w="${code}" ${want.has(code)?'checked':''}> Take this course</label>
+<div class="secs">${ss.map(s=>`<button class="sec ${pick[code]==s.id?'on':''}" data-p="${s.id}" ${s.left?'':'data-full=1'} ${bad(s)?'data-off=1':''}><b>Section ${s.no}</b> ${s.d.map(d=>D[d]).join(' / ')} ${F(s.a)}–${F(s.b)}<small>${s.t}, room ${s.r}, ${bad(s)?'hidden by your preference':s.left?s.left+' seats left':'full, waitlist only'}</small></button>`).join('')}</div></article>`}).join('');
+const P=picked();let h='<tr><th></th>'+D.map(d=>`<th>${d}</th>`).join('')+'</tr>';
+for(let hr=8;hr<17;hr++){h+=`<tr><th>${hr>12?hr-12:hr}:00</th>`;for(let d=0;d<5;d++){const s=P.find(s=>s.d.includes(d)&&s.a<hr*60+60&&s.b>hr*60);h+=s?`<td class="fill" style="--h:${s.hue}">${s.code}<small>room ${s.r}</small></td>`:'<td></td>'}h+='</tr>'}
+$('#tbl').innerHTML=h}
+
+$('#cards').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;const s=by(b.dataset.p);
+if(bad(s))return toast('This section is switched off by your preferences. Untick the preference to use it.',1);
+if(pick[s.code]==s.id){delete pick[s.code];return plan()}
+const c=picked().find(o=>o.code!=s.code&&clash(o,s));
+if(c){const day=D[s.d.find(d=>c.d.includes(d))];return toast(`Clash: ${s.code} overlaps ${c.code} on ${day}. Choose another section.`,1)}
+pick[s.code]=s.id;want.add(s.code);plan()});
+$('#cards').addEventListener('change',e=>{const c=e.target.dataset.w;if(!c)return;e.target.checked?want.add(c):(want.delete(c),delete pick[c]);plan()});
+['nt','ne'].forEach(i=>$('#'+i).addEventListener('change',()=>{const rm=picked().filter(bad);rm.forEach(x=>delete pick[x.code]);
+$('#info').textContent=rm.length?`Removed ${rm.map(x=>x.id).join(', ')}. Press Build my routine to refill.`:'Preference applied.';if(rm.length)toast('Preference applied: '+rm.length+' section(s) removed from your routine.');plan()}));
+$('#clr').onclick=()=>{pick={};want.clear();$('#info').textContent='Cleared.';plan()};
+
+$('#auto').onclick=()=>{const cs=[...want];
+if(!cs.length)return toast('Tick at least one course first.',1);
+let tries=0,res=null;const ok=s=>s.left>0&&!bad(s);
+(function bt(i,ch){if(i==cs.length){res=ch.slice();return}
+for(const s of S.filter(s=>s.code==cs[i]&&ok(s))){tries++;if(ch.some(c=>clash(c,s)))continue;ch.push(s);bt(i+1,ch);if(res)return;ch.pop()}})(0,[]);
+if(!res){$('#info').textContent=`No clash-free combination after ${tries} tries.`;return toast('No routine fits. Relax a preference or drop a course.',1)}
+pick={};res.forEach(s=>pick[s.code]=s.id);$('#info').textContent=`Found after ${tries} backtracking steps.`;plan()};
+
+const score=()=>(+$('#rt').checked*50)+(+$('#se').value||0)*10+(+$('#cg').value||0)*5;
+function free(s){if(s.wait.length){const w=s.wait.shift();if(w=='You'){wait=wait.filter(x=>x!=s.id);enr.push(s.id);toast(`A seat opened: you are now enrolled in ${s.id}.`)}}else s.left++}
+function status(){const sc=score();$('#score').textContent='Priority score '+sc.toFixed(1);
+const n=Date.now(),L=locks.map(l=>{const sec=Math.max(0,Math.ceil((l.exp-n)/1e3));return `<div class="item"><span>${l.id}: seat held <b class="ok">${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}</b></span><span><button data-c="${l.id}">Confirm</button> <button class="ghost" data-x="${l.id}">Release</button></span></div>`}).join('');
+const E=enr.map(id=>`<div class="item"><span class="ok">${id} confirmed</span><button class="ghost" data-d="${id}">Drop</button></div>`).join('');
+const W=wait.map(id=>`<div class="item"><span class="bad">${id} full: you are number ${by(id).wait.indexOf('You')+1} on the waitlist</span></div>`).join('');
+$('#status').innerHTML=(L+E+W)||'<p class="mute">Nothing yet. Build a routine, then request your seats.</p>'}
+$('#go').onclick=()=>{const P=picked();if(!P.length)return toast('Pick your sections in Plan routine first.',1);
+P.forEach(s=>{if(locks.some(l=>l.id==s.id)||enr.includes(s.id)||wait.includes(s.id))return;
+if(s.left>0){s.left--;locks.push({id:s.id,exp:Date.now()+3e5})}else{s.wait.push('You');wait.push(s.id)}});status();plan()};
+$('#status').addEventListener('click',e=>{const d=e.target.dataset;
+if(d.c){locks=locks.filter(l=>l.id!=d.c);enr.push(d.c);toast(d.c+' confirmed.')}
+if(d.x){locks=locks.filter(l=>l.id!=d.x);free(by(d.x))}
+if(d.d){enr=enr.filter(x=>x!=d.d);free(by(d.d))}
+status();plan()});
+['rt','se','cg'].forEach(i=>$('#'+i).addEventListener('input',status));
+setInterval(()=>{const n=Date.now();locks.filter(l=>l.exp<=n).forEach(l=>{locks=locks.filter(x=>x!=l);free(by(l.id));toast(`Hold on ${l.id} expired. Seat released.`,1);plan()});if(locks.length)status()},1000);
+
+$('#run').onclick=()=>{const h=new Heap;
+for(let i=1;i<=100;i++){const sem=1+Math.random()*8|0,cg=2+Math.random()*2,rt=Math.random()<.2;h.push({id:i,sc:(rt?50:0)+sem*10+cg*5,s:S[Math.random()*S.length|0]})}
+while(h.n){const {id,sc,s}=h.pop();if(s.left>0){s.left--;s.en++;s.cut=s.cut==null?sc:Math.min(s.cut,sc)}else{s.wait.push('#'+id);s.wq++}}
+simOut();plan()};
+function simOut(){$('#simout').innerHTML='<table><tr><th>Section</th><th>Seats</th><th>Taken by priority</th><th>Waitlist</th><th>Lowest score admitted</th></tr>'+S.map(s=>`<tr><td>${s.id}</td><td>${s.tot}</td><td>${s.en}</td><td>${s.wq}</td><td>${s.cut==null?'-':s.cut.toFixed(1)}</td></tr>`).join('')+'</table>'}
+$('#reset').onclick=()=>{S.forEach(s=>Object.assign(s,{left:s.tot,wait:[],en:0,wq:0,cut:null}));locks=[];enr=[];wait=[];$('#simout').innerHTML='';status();plan();toast('All seats reset.')};
+
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tab').forEach(x=>x.setAttribute('aria-selected',x==b));
+document.querySelectorAll('.panel').forEach(p=>p.hidden=p.id!=b.dataset.t);status()});
+const root=document.documentElement;try{root.dataset.theme=localStorage.getItem('th')||'dark'}catch(e){}
+$('#theme').onclick=()=>{const t=root.dataset.theme=='dark'?'light':'dark';root.dataset.theme=t;try{localStorage.setItem('th',t)}catch(e){}};
+plan();status();
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* 3D classroom background: Three.js, mouse parallax + scroll fly-through */
+(function(){
+if(!window.THREE)return;const T=THREE,cv=document.getElementById('bg');let R;
+try{R=new T.WebGLRenderer({canvas:cv,antialias:true})}catch(e){return}
+R.setPixelRatio(Math.min(devicePixelRatio,1.5));
+const sc=new T.Scene(),cam=new T.PerspectiveCamera(58,1,.1,80),M=(c,o)=>new T.MeshStandardMaterial(Object.assign({color:c,roughness:.8},o||{}));
+const room=new T.Mesh(new T.BoxGeometry(22,8,34),M(0x5a6b72,{side:T.BackSide}));room.position.set(0,4,-4);sc.add(room);
+const floor=new T.Mesh(new T.PlaneGeometry(22,34),M(0x3b4a4c,{roughness:.5}));floor.rotation.x=-Math.PI/2;floor.position.set(0,.01,-4);sc.add(floor);
+/* projector screen with a live chart */
+const c2=document.createElement('canvas');c2.width=640;c2.height=360;const g=c2.getContext('2d'),tex=new T.CanvasTexture(c2);
+function chart(t){g.fillStyle='#e6f6fb';g.fillRect(0,0,640,360);g.fillStyle='#14343c';g.font='700 30px cursive';g.fillText('Seats filled by priority',24,44);
+for(let i=0;i<9;i++){const h=60+110*Math.abs(Math.sin(i*.9+t));g.fillStyle=i%2?'#3aa6b9':'#1f6f86';g.fillRect(40+i*66,330-h,44,h)}tex.needsUpdate=true}
+chart(0);
+const scr=new T.Mesh(new T.PlaneGeometry(11,6.2),new T.MeshBasicMaterial({map:tex}));scr.position.set(0,3.6,-20.9);sc.add(scr);
+const frame=new T.Mesh(new T.PlaneGeometry(11.4,6.6),M(0x10181a));frame.position.set(0,3.6,-20.95);sc.add(frame);
+/* ceiling light strips */
+[-5,5].forEach(x=>[-2,-10].forEach(z=>{const l=new T.Mesh(new T.BoxGeometry(.4,.08,7),new T.MeshBasicMaterial({color:0xffe3b0}));l.position.set(x,7.9,z);sc.add(l);
+const p=new T.PointLight(0xffe0b0,.55,16);p.position.set(x,7.2,z);sc.add(p)}));
+const pl=new T.PointLight(0x8fe3ff,1.4,26);pl.position.set(0,3.6,-18);sc.add(pl);
+const amb=new T.AmbientLight(0xaac0c8,.35),hemi=new T.HemisphereLight(0xcfe8ff,0x3a2a1a,.3);sc.add(amb,hemi);
+/* desks, chairs and students */
+const wood=M(0xb98a55),dark=M(0x1c2528),skin=M(0xc99a78),shirts=[0x2f4858,0x6b4f4f,0x4d6b5c,0x39445a,0x7a6a3a];
+const xs=[-6.5,-4,-1.6,1.6,4,6.5];
+for(let r=0;r<5;r++){const z=4-r*3.6;xs.forEach((x,ci)=>{
+const d=new T.Group(),top=new T.Mesh(new T.BoxGeometry(2,.08,.9),wood);top.position.y=.78;d.add(top);
+[-.9,.9].forEach(lx=>{const lg=new T.Mesh(new T.BoxGeometry(.06,.78,.7),dark);lg.position.set(lx,.39,0);d.add(lg)});
+const seat=new T.Mesh(new T.BoxGeometry(.7,.08,.7),dark);seat.position.set(0,.48,1.1);d.add(seat);
+const back=new T.Mesh(new T.BoxGeometry(.7,.7,.08),dark);back.position.set(0,.88,1.45);d.add(back);
+if((r*7+ci*3)%5!==0){const b=new T.Mesh(new T.BoxGeometry(.55,.75,.3),M(shirts[(r+ci)%5]));b.position.set(0,.95,1.15);d.add(b);
+const h=new T.Mesh(new T.SphereGeometry(.2,12,12),skin);h.position.set(0,1.52,1.1);d.add(h)}
+d.position.set(x,0,z);sc.add(d)})}
+const pr=new T.Group();const pb=new T.Mesh(new T.BoxGeometry(.6,1.3,.35),M(0x233a55));pb.position.y=1.1;const ph=new T.Mesh(new T.SphereGeometry(.22,12,12),skin);ph.position.y=2;pr.add(pb,ph);pr.position.set(3.2,0,-17);sc.add(pr);
+/* floating dust */
+const N=160,pa=new Float32Array(N*3);for(let i=0;i<N*3;i+=3){pa[i]=(Math.random()-.5)*18;pa[i+1]=Math.random()*7;pa[i+2]=-18+Math.random()*28}
+const geo=new T.BufferGeometry();geo.setAttribute('position',new T.BufferAttribute(pa,3));
+const dust=new T.Points(geo,new T.PointsMaterial({color:0xfff2cc,size:.05,transparent:true,opacity:.6}));sc.add(dust);
+/* theme: dark classroom / daylight classroom */
+function theme(){const l=document.documentElement.dataset.theme=='light',bg=l?0xd6dedb:0x070d0c;sc.background=new T.Color(bg);sc.fog=new T.Fog(bg,l?22:14,l?55:42);
+amb.intensity=l?.95:.35;hemi.intensity=l?.8:.3;R.toneMappingExposure=l?1.1:.9}
+new MutationObserver(theme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});theme();
+function size(){R.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()}
+addEventListener('resize',size);size();
+let mx=0,my=0,sy=0;addEventListener('pointermove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5});
+addEventListener('scroll',()=>sy=scrollY/Math.max(1,document.body.scrollHeight-innerHeight),{passive:true});
+const still=matchMedia('(prefers-reduced-motion:reduce)').matches;
+function loop(t){t*=.001;const tx=mx*2.2,ty=2.1-my*.7,tz=10-sy*7;
+cam.position.x+=(tx-cam.position.x)*.04;cam.position.y+=(ty-cam.position.y)*.04;cam.position.z+=(tz-cam.position.z)*.04;
+cam.lookAt(mx*-1.5,2.4,-18);
+if(!still){dust.rotation.y=t*.02;dust.position.y=Math.sin(t*.3)*.2;pr.position.x=3.2+Math.sin(t*.4)*.8;if(((t*4)|0)%3==0)chart(t*.6)}
+R.render(sc,cam);if(!still)requestAnimationFrame(loop)}
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
